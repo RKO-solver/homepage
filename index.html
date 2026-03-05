@@ -765,7 +765,7 @@
 <section class="hero">
   <div class="hero-glow"></div>
 
-  <div class="hero-badge">Journal of Heuristics · 2025</div>
+  <div class="hero-badge">Metaheuristic Framework</div>
 
   <h1>
     <span class="hero-title-rko">RKO</span>
@@ -857,7 +857,7 @@
   <div class="container">
     <div class="reveal">
       <p class="section-label">// Built-in algorithms</p>
-      <h2 class="section-title">8 Metaheuristics,<br><span>one framework.</span></h2>
+      <h2 class="section-title">Different Metaheuristics,<br><span>one framework.</span></h2>
       <p class="section-body">
         The framework ships with a comprehensive suite of classic metaheuristics, all operating
         within the same random-key space. New methods can be added without touching existing code.
@@ -870,9 +870,13 @@
       <div class="mh-card"><div class="mh-dot"></div> GRASP</div>
       <div class="mh-card"><div class="mh-dot"></div> Variable Neighborhood Search</div>
       <div class="mh-card"><div class="mh-dot"></div> Genetic Algorithm</div>
-      <div class="mh-card"><div class="mh-dot"></div> Dual Annealing</div>
-      <div class="mh-card"><div class="mh-dot"></div> Tabu Search</div>
+      <div class="mh-card"><div class="mh-dot"></div> Large Neighborhood Search</div>
+      <div class="mh-card"><div class="mh-dot"></div> BRKGA</div>
+      <div class="mh-card"><div class="mh-dot"></div> BRKGA-CS</div>
       <div class="mh-card"><div class="mh-dot"></div> Particle Swarm Optimization</div>
+      <div class="mh-card"><div class="mh-dot"></div> Ant Colony Optimization</div>
+      <div class="mh-card"><div class="mh-dot"></div> Differential Evolution</div>
+      <div class="mh-card"><div class="mh-dot"></div> Implicit Path-Relinking</div>
     </div>
   </div>
 </section>
@@ -983,14 +987,14 @@
 <span class="cm">// Decode a random-key vector</span>
 <span class="cm">// into a feasible solution</span>
 <span class="kw">double</span> <span class="fn">decoder</span>(
-  <span class="kw">vector</span>&lt;<span class="kw">double</span>&gt; &amp;rk,
-  <span class="kw">Problem</span> &amp;prob
+  <span class="kw">TSol(</span> &amp;rk),
+  <span class="kw">TProblemData</span> &amp;data
 ) {
   <span class="cm">// Sort indices by random-key values</span>
   <span class="kw">vector</span>&lt;<span class="kw">int</span>&gt; perm = sortByKey(rk);
 
   <span class="cm">// Build solution from permutation</span>
-  <span class="kw">double</span> cost = evaluate(perm, prob);
+  <span class="kw">double</span> cost = evaluate(perm, data);
 
   <span class="kw">return</span> cost;
 }
@@ -1012,8 +1016,8 @@ git clone https://github.com/<span class="fn">RKO-solver</span>/RKO_Cpp_v2.0
 <span class="cm"># Compile</span>
 make
 
-<span class="cm"># Run (K metaheuristics, T tuning)</span>
-./runTest instances/<span class="str">test.csv</span> <span class="num">4</span> <span class="num">1</span> <span class="num">0</span>
+<span class="cm"># Run (instance, time)</span>
+./runTest instances/<span class="str">name.txt</span> <span class="num">10</span> 
           </div>
         </div>
       </div>
@@ -1036,6 +1040,7 @@ make
               <div style="background:rgba(123,97,255,0.1);border:1px solid rgba(123,97,255,0.2);border-radius:6px;padding:0.6rem;text-align:center;color:var(--accent2)">ILS</div>
               <div style="background:rgba(123,97,255,0.1);border:1px solid rgba(123,97,255,0.2);border-radius:6px;padding:0.6rem;text-align:center;color:var(--accent2)">GRASP</div>
               <div style="background:rgba(123,97,255,0.1);border:1px solid rgba(123,97,255,0.2);border-radius:6px;padding:0.6rem;text-align:center;color:var(--accent2)">VNS</div>
+              <div style="background:rgba(123,97,255,0.1);border:1px solid rgba(123,97,255,0.2);border-radius:6px;padding:0.6rem;text-align:center;color:var(--accent2)">...</div>
             </div>
             <div style="text-align:center;margin-top:0.75rem;font-size:0.8rem;color:var(--muted)">Elite Solution Pool ↔ All metaheuristics</div>
           </div>
@@ -1136,7 +1141,7 @@ make
           Brubaker, J.K., Katzgraber, H.G., Arruda, E.F., Silva, R.M.A.</strong><br><br>
           A Random-Key Optimizer for Combinatorial Optimization.<br>
           <em style="color:var(--accent2)">Journal of Heuristics</em>, 31, 32 (2025).<br><br>
-          DOI: <a href="https://doi.org/10.48550/arXiv.2411.04293" target="_blank" style="color:var(--accent);text-decoration:none">10.48550/arXiv.2411.04293</a>
+          DOI: <a href="https://doi.org/10.1007/s10732-025-09568-z" target="_blank" style="color:var(--accent);text-decoration:none">10.1007/s10732-025-09568-z</a>
         </div>
         <a href="https://doi.org/10.48550/arXiv.2411.04293" target="_blank" class="btn-secondary" style="margin-top:1.5rem;display:inline-flex">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 0 1-1h6"/><polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
@@ -1153,14 +1158,12 @@ make
 <!-- FOOTER -->
 <footer>
   <div class="footer-logo">RKO//</div>
-  <p class="footer-text">Random-Key Optimizer · Open Source · Journal of Heuristics 2025</p>
+  <p class="footer-text">Random-Key Optimizer · Open Source </p>
   <div class="footer-links">
     <a href="https://github.com/RKO-solver" target="_blank">GitHub Organization</a>
     <a href="https://github.com/RKO-solver/RKO_Cpp_v2.0" target="_blank">C++ v2.0</a>
     <a href="https://github.com/RKO-solver/RKO_Python" target="_blank">Python</a>
     <a href="https://github.com/RKO-solver/RKO_Go" target="_blank">Go</a>
-    <a href="https://doi.org/10.48550/arXiv.2411.04293" target="_blank">Paper (arXiv)</a>
-    <a href="https://doi.org/10.1007/s10732-025-09568-z" target="_blank">Paper (Springer)</a>
   </div>
   <p class="footer-copy">© 2025 RKO Authors · CC BY 4.0</p>
 </footer>
