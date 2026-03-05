@@ -987,7 +987,7 @@
 <span class="cm">// Decode a random-key vector</span>
 <span class="cm">// into a feasible solution</span>
 <span class="kw">double</span> <span class="fn">decoder</span>(
-  <span class="kw">TSol(</span> &amp;rk),
+  <span class="kw">TSol</span> &amp;rk,
   <span class="kw">TProblemData</span> &amp;data
 ) {
   <span class="cm">// Sort indices by random-key values</span>
@@ -1040,6 +1040,7 @@ make
               <div style="background:rgba(123,97,255,0.1);border:1px solid rgba(123,97,255,0.2);border-radius:6px;padding:0.6rem;text-align:center;color:var(--accent2)">ILS</div>
               <div style="background:rgba(123,97,255,0.1);border:1px solid rgba(123,97,255,0.2);border-radius:6px;padding:0.6rem;text-align:center;color:var(--accent2)">GRASP</div>
               <div style="background:rgba(123,97,255,0.1);border:1px solid rgba(123,97,255,0.2);border-radius:6px;padding:0.6rem;text-align:center;color:var(--accent2)">VNS</div>
+              <div style="background:rgba(123,97,255,0.1);border:1px solid rgba(123,97,255,0.2);border-radius:6px;padding:0.6rem;text-align:center;color:var(--accent2)">BRKGA</div>
               <div style="background:rgba(123,97,255,0.1);border:1px solid rgba(123,97,255,0.2);border-radius:6px;padding:0.6rem;text-align:center;color:var(--accent2)">...</div>
             </div>
             <div style="text-align:center;margin-top:0.75rem;font-size:0.8rem;color:var(--muted)">Elite Solution Pool ↔ All metaheuristics</div>
