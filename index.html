@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RKO — Random-Key Optimizer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --border: #1e1e2e;
+    --accent: #00ffc3;
+    --accent2: #7b61ff;
+    --accent3: #ff6b35;
+    --text: #e8e8f0;
+    --muted: #6b6b8a;
+    --card: #13131f;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  /* Grid noise background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,255,195,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,195,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.2rem 3rem;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-decoration: none;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--accent); }
+
+  .nav-cta {
+    background: var(--accent);
+    color: var(--bg) !important;
+    padding: 0.5rem 1.2rem;
+    border-radius: 4px;
+    font-weight: 700 !important;
+    transition: opacity 0.2s !important;
+  }
+
+  .nav-cta:hover { opacity: 0.85; color: var(--bg) !important; }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 8rem 2rem 5rem;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .hero-glow {
+    position: absolute;
+    width: 700px;
+    height: 700px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,255,195,0.08) 0%, transparent 70%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    animation: pulse 4s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.7; }
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(0,255,195,0.08);
+    border: 1px solid rgba(0,255,195,0.25);
+    border-radius: 100px;
+    padding: 0.4rem 1rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    animation: fadeDown 0.8s ease forwards;
+  }
+
+  .hero-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: blink 1.5s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  h1 {
+    font-size: clamp(3.5rem, 9vw, 8rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.3em;
+    animation: fadeUp 0.9s ease 0.1s both;
+  }
+
+  .hero-title-rko {
+    display: block;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-title-sub {
+    display: block;
+    color: var(--text);
+    font-size: 0.42em;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    -webkit-text-fill-color: var(--text);
+    margin-top: 0.4em;
+    opacity: 0.7;
+  }
+
+  .hero-description {
+    max-width: 620px;
+    font-size: 1.15rem;
+    color: var(--muted);
+    margin: 1.5rem auto 2.5rem;
+    line-height: 1.75;
+    animation: fadeUp 0.9s ease 0.25s both;
+  }
+
+  .hero-description em {
+    color: var(--accent);
+    font-style: normal;
+    font-weight: 600;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: fadeUp 0.9s ease 0.4s both;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--accent);
+    color: var(--bg);
+    padding: 0.85rem 2rem;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+    letter-spacing: 0.03em;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 0 30px rgba(0,255,195,0.25);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 50px rgba(0,255,195,0.4);
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: transparent;
+    color: var(--text);
+    padding: 0.85rem 2rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--accent2);
+    background: rgba(123,97,255,0.07);
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 3rem;
+    justify-content: center;
+    margin-top: 4rem;
+    animation: fadeUp 0.9s ease 0.55s both;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent);
+    display: block;
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 0.2rem;
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    position: relative;
+    z-index: 1;
+    padding: 6rem 2rem;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 1rem;
+  }
+
+  .section-title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+  }
+
+  .section-title span {
+    color: var(--accent);
+  }
+
+  .section-body {
+    font-size: 1.05rem;
+    color: var(--muted);
+    max-width: 650px;
+    line-height: 1.8;
+  }
+
+  /* ── HOW IT WORKS ── */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-top: 3.5rem;
+  }
+
+  .step {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+
+  .step:hover {
+    border-color: var(--accent);
+    transform: translateY(-4px);
+  }
+
+  .step::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .step:hover::before { opacity: 1; }
+
+  .step-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    margin-bottom: 1rem;
+    opacity: 0.7;
+  }
+
+  .step-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+
+  .step-body {
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  /* ── METAHEURISTICS ── */
+  .mh-section {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .mh-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 3rem;
+  }
+
+  .mh-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: all 0.25s;
+    cursor: default;
+  }
+
+  .mh-card:hover {
+    border-color: var(--accent2);
+    background: rgba(123,97,255,0.06);
+    color: var(--accent2);
+  }
+
+  .mh-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent2);
+    flex-shrink: 0;
+  }
+
+  /* ── REPOS ── */
+  .repos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+
+  .repo-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.75rem;
+    text-decoration: none;
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .repo-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(0,255,195,0.08);
+  }
+
+  .repo-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .repo-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .repo-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .repo-desc {
+    font-size: 0.875rem;
+    color: var(--muted);
+    line-height: 1.6;
+    flex: 1;
+  }
+
+  .repo-footer {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .repo-lang {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .lang-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+
+  .repo-stars {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  /* ── CODE BLOCK ── */
+  .code-section {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: start;
+    margin-top: 3rem;
+  }
+
+  @media (max-width: 768px) {
+    .code-grid { grid-template-columns: 1fr; }
+  }
+
+  .code-block {
+    background: #0d0d16;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1.25rem;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+  }
+
+  .code-filename {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-left: auto;
+  }
+
+  .code-body {
+    padding: 1.5rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.9;
+    overflow-x: auto;
+  }
+
+  .code-body .kw { color: #7b61ff; }
+  .code-body .fn { color: #00ffc3; }
+  .code-body .cm { color: #3d3d5c; }
+  .code-body .str { color: #ff6b35; }
+  .code-body .num { color: #ffa45b; }
+
+  /* ── APPLICATIONS ── */
+  .apps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+
+  .app-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    transition: all 0.3s;
+  }
+
+  .app-card:hover {
+    border-color: var(--accent3);
+    transform: translateY(-4px);
+  }
+
+  .app-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .app-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .app-body {
+    font-size: 0.875rem;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  /* ── AUTHORS ── */
+  .authors-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 2.5rem;
+  }
+
+  .author-pill {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 0.6rem 1.25rem;
+    font-size: 0.875rem;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+  }
+
+  .author-pill:hover {
+    border-color: var(--accent2);
+    background: rgba(123,97,255,0.06);
+  }
+
+  .author-avatar {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  /* ── CITATION ── */
+  .citation-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    padding: 1.75rem 2rem;
+    margin-top: 2.5rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.9;
+  }
+
+  .citation-box strong {
+    color: var(--accent);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    position: relative;
+    z-index: 1;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 3rem 2rem;
+    text-align: center;
+  }
+
+  .footer-logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.75rem;
+  }
+
+  .footer-text {
+    font-size: 0.875rem;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+
+  .footer-links a {
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .footer-links a:hover { color: var(--accent); }
+
+  .footer-copy {
+    font-size: 0.8rem;
+    color: #3d3d5c;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    border: none;
+    height: 1px;
+    background: var(--border);
+    margin: 0;
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    .hero-stats { gap: 2rem; }
+    #paper .container > div { grid-template-columns: 1fr !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">RKO//</a>
+  <ul class="nav-links">
+    <li><a href="#how">Method</a></li>
+    <li><a href="#metaheuristics">Metaheuristics</a></li>
+    <li><a href="#repos">Repositories</a></li>
+    <li><a href="#applications">Applications</a></li>
+    <li><a href="#paper">Paper</a></li>
+    <li><a href="https://github.com/RKO-solver" target="_blank" class="nav-cta">GitHub →</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+
+  <div class="hero-badge">Journal of Heuristics · 2025</div>
+
+  <h1>
+    <span class="hero-title-rko">RKO</span>
+    <span class="hero-title-sub">Random-Key Optimizer</span>
+  </h1>
+
+  <p class="hero-description">
+    A <em>versatile and efficient</em> stochastic local search framework for
+    combinatorial optimization — encoding solutions as random-key vectors
+    decoded by problem-specific decoders.
+  </p>
+
+  <div class="hero-actions">
+    <a href="https://github.com/RKO-solver" target="_blank" class="btn-primary">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+      View on GitHub
+    </a>
+    <a href="https://doi.org/10.48550/arXiv.2411.04293" target="_blank" class="btn-secondary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Read the Paper
+    </a>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat">
+      <span class="stat-value">8+</span>
+      <span class="stat-label">Metaheuristics</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value">4</span>
+      <span class="stat-label">Repositories</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value">NP-Hard</span>
+      <span class="stat-label">Problem ready</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value">C++ / Python / Go</span>
+      <span class="stat-label">Languages</span>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="container">
+    <div class="reveal">
+      <p class="section-label">// How it works</p>
+      <h2 class="section-title">Encode. Search. <span>Decode.</span></h2>
+      <p class="section-body">
+        RKO separates the <strong>problem-independent search</strong> from the
+        <strong>problem-dependent decoder</strong>. Solutions are represented as
+        vectors of continuous random keys in [0,1), enabling a unified
+        optimization engine across any combinatorial problem.
+      </p>
+    </div>
+
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-num">// 01 — ENCODE</div>
+        <div class="step-title">Random-Key Representation</div>
+        <div class="step-body">Solutions are encoded as vectors χ ∈ [0,1)ⁿ of continuous random keys. This preserves feasibility and simplifies search operators, making them problem-independent.</div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">// 02 — SEARCH</div>
+        <div class="step-title">Multi-Metaheuristic Engine</div>
+        <div class="step-body">Multiple classic metaheuristics run independently or in parallel, each navigating the random-key space through exploration and exploitation. An elite pool facilitates knowledge sharing.</div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">// 03 — SHARE</div>
+        <div class="step-title">Elite Solution Pool</div>
+        <div class="step-body">High-quality solutions are stored in a shared elite pool, allowing different metaheuristics to exchange promising solutions and converge toward global optima.</div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">// 04 — DECODE</div>
+        <div class="step-title">Problem-Specific Decoder</div>
+        <div class="step-body">A decoder translates each random-key vector into a concrete feasible solution for the target problem. Only the decoder needs to be adapted — the rest is reused as-is.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- METAHEURISTICS -->
+<section id="metaheuristics" class="mh-section">
+  <div class="container">
+    <div class="reveal">
+      <p class="section-label">// Built-in algorithms</p>
+      <h2 class="section-title">8 Metaheuristics,<br><span>one framework.</span></h2>
+      <p class="section-body">
+        The framework ships with a comprehensive suite of classic metaheuristics, all operating
+        within the same random-key space. New methods can be added without touching existing code.
+      </p>
+    </div>
+
+    <div class="mh-grid reveal">
+      <div class="mh-card"><div class="mh-dot"></div> Simulated Annealing</div>
+      <div class="mh-card"><div class="mh-dot"></div> Iterated Local Search</div>
+      <div class="mh-card"><div class="mh-dot"></div> GRASP</div>
+      <div class="mh-card"><div class="mh-dot"></div> Variable Neighborhood Search</div>
+      <div class="mh-card"><div class="mh-dot"></div> Genetic Algorithm</div>
+      <div class="mh-card"><div class="mh-dot"></div> Dual Annealing</div>
+      <div class="mh-card"><div class="mh-dot"></div> Tabu Search</div>
+      <div class="mh-card"><div class="mh-dot"></div> Particle Swarm Optimization</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- REPOSITORIES -->
+<section id="repos">
+  <div class="container">
+    <div class="reveal">
+      <p class="section-label">// Open source</p>
+      <h2 class="section-title">Available in<br><span>multiple languages.</span></h2>
+      <p class="section-body">
+        The RKO framework is publicly available on GitHub with implementations in C++, Python,
+        and Go. Pick the language that fits your workflow.
+      </p>
+    </div>
+
+    <div class="repos-grid">
+
+      <a href="https://github.com/RKO-solver/RKO_Cpp_v1.0" target="_blank" class="repo-card reveal">
+        <div class="repo-card-header">
+          <div class="repo-icon" style="background:rgba(0,255,195,0.1)">⚡</div>
+          <div class="repo-name">RKO_Cpp_v1.0</div>
+        </div>
+        <div class="repo-desc">Original C++ framework implementing the core RKO methodology with all built-in metaheuristics.</div>
+        <div class="repo-footer">
+          <div class="repo-lang">
+            <div class="lang-dot" style="background:#f34b7d"></div> C++
+          </div>
+          <div class="repo-stars">⭐ 20</div>
+          <div>🍴 4</div>
+        </div>
+      </a>
+
+      <a href="https://github.com/RKO-solver/RKO_Cpp_v2.0" target="_blank" class="repo-card reveal">
+        <div class="repo-card-header">
+          <div class="repo-icon" style="background:rgba(123,97,255,0.1)">🚀</div>
+          <div class="repo-name">RKO_Cpp_v2.0</div>
+        </div>
+        <div class="repo-desc">Second generation C++ framework with enhanced parallel capabilities, online tuning, and improved solution sharing.</div>
+        <div class="repo-footer">
+          <div class="repo-lang">
+            <div class="lang-dot" style="background:#f34b7d"></div> C++
+          </div>
+          <div class="repo-stars">⭐ 18</div>
+          <div>🍴 6</div>
+        </div>
+      </a>
+
+      <a href="https://github.com/RKO-solver/RKO_Python" target="_blank" class="repo-card reveal">
+        <div class="repo-card-header">
+          <div class="repo-icon" style="background:rgba(255,107,53,0.1)">🐍</div>
+          <div class="repo-name">RKO_Python</div>
+        </div>
+        <div class="repo-desc">Python implementation of the RKO framework by Felipe Silvestre, accessible to data scientists and researchers.</div>
+        <div class="repo-footer">
+          <div class="repo-lang">
+            <div class="lang-dot" style="background:#3572A5"></div> Python
+          </div>
+          <div class="repo-stars">⭐ 12</div>
+          <div>🍴 2</div>
+        </div>
+      </a>
+
+      <a href="https://github.com/RKO-solver/RKO_Go" target="_blank" class="repo-card reveal">
+        <div class="repo-card-header">
+          <div class="repo-icon" style="background:rgba(0,173,216,0.1)">🐹</div>
+          <div class="repo-name">RKO_Go</div>
+        </div>
+        <div class="repo-desc">Go language adaptation by Lucas Mendes, bringing RKO's performance to Go's concurrency model.</div>
+        <div class="repo-footer">
+          <div class="repo-lang">
+            <div class="lang-dot" style="background:#00ADD8"></div> Go
+          </div>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- QUICK START CODE -->
+<section id="start" class="code-section">
+  <div class="container">
+    <div class="reveal">
+      <p class="section-label">// Quick start</p>
+      <h2 class="section-title">Get started in<br><span>minutes.</span></h2>
+      <p class="section-body">
+        Implementing RKO for your own problem requires only a custom decoder.
+        The entire optimization engine is reused unchanged.
+      </p>
+    </div>
+
+    <div class="code-grid reveal">
+      <div>
+        <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1rem;color:var(--text)">1. Implement your decoder</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dot" style="background:#ff5f57"></div>
+            <div class="code-dot" style="background:#febc2e"></div>
+            <div class="code-dot" style="background:#28c840"></div>
+            <span class="code-filename">Problem.cpp</span>
+          </div>
+          <div class="code-body">
+<span class="cm">// Decode a random-key vector</span>
+<span class="cm">// into a feasible solution</span>
+<span class="kw">double</span> <span class="fn">decoder</span>(
+  <span class="kw">vector</span>&lt;<span class="kw">double</span>&gt; &amp;rk,
+  <span class="kw">Problem</span> &amp;prob
+) {
+  <span class="cm">// Sort indices by random-key values</span>
+  <span class="kw">vector</span>&lt;<span class="kw">int</span>&gt; perm = sortByKey(rk);
+
+  <span class="cm">// Build solution from permutation</span>
+  <span class="kw">double</span> cost = evaluate(perm, prob);
+
+  <span class="kw">return</span> cost;
+}
+          </div>
+        </div>
+
+        <h3 style="font-size:1.1rem;font-weight:700;margin:1.5rem 0 1rem;color:var(--text)">2. Run RKO</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dot" style="background:#ff5f57"></div>
+            <div class="code-dot" style="background:#febc2e"></div>
+            <div class="code-dot" style="background:#28c840"></div>
+            <span class="code-filename">Terminal</span>
+          </div>
+          <div class="code-body">
+<span class="cm"># Clone the repository</span>
+git clone https://github.com/<span class="fn">RKO-solver</span>/RKO_Cpp_v2.0
+
+<span class="cm"># Compile</span>
+make
+
+<span class="cm"># Run (K metaheuristics, T tuning)</span>
+./runTest instances/<span class="str">test.csv</span> <span class="num">4</span> <span class="num">1</span> <span class="num">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1rem;color:var(--text)">Framework Architecture</h3>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.75rem;display:flex;flex-direction:column;gap:1rem;">
+
+          <div style="background:#0d0d16;border:1px solid var(--border);border-radius:8px;padding:1.25rem;text-align:center;">
+            <div style="font-size:0.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem">Input</div>
+            <div style="font-weight:700;color:var(--text)">Combinatorial Optimization Problem</div>
+          </div>
+
+          <div style="text-align:center;color:var(--accent);font-size:1.2rem">↓</div>
+
+          <div style="background:rgba(0,255,195,0.05);border:1px solid rgba(0,255,195,0.2);border-radius:8px;padding:1.25rem;">
+            <div style="font-size:0.75rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem">Random-Key Space</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;font-size:0.8rem">
+              <div style="background:rgba(123,97,255,0.1);border:1px solid rgba(123,97,255,0.2);border-radius:6px;padding:0.6rem;text-align:center;color:var(--accent2)">SA</div>
+              <div style="background:rgba(123,97,255,0.1);border:1px solid rgba(123,97,255,0.2);border-radius:6px;padding:0.6rem;text-align:center;color:var(--accent2)">ILS</div>
+              <div style="background:rgba(123,97,255,0.1);border:1px solid rgba(123,97,255,0.2);border-radius:6px;padding:0.6rem;text-align:center;color:var(--accent2)">GRASP</div>
+              <div style="background:rgba(123,97,255,0.1);border:1px solid rgba(123,97,255,0.2);border-radius:6px;padding:0.6rem;text-align:center;color:var(--accent2)">VNS</div>
+            </div>
+            <div style="text-align:center;margin-top:0.75rem;font-size:0.8rem;color:var(--muted)">Elite Solution Pool ↔ All metaheuristics</div>
+          </div>
+
+          <div style="text-align:center;color:var(--accent);font-size:1.2rem">↓</div>
+
+          <div style="background:rgba(255,107,53,0.05);border:1px solid rgba(255,107,53,0.2);border-radius:8px;padding:1.25rem;text-align:center;">
+            <div style="font-size:0.75rem;color:var(--accent3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem">Decoder (user-defined)</div>
+            <div style="font-weight:600;color:var(--text);font-size:0.9rem">χ ∈ [0,1)ⁿ → Feasible Solution</div>
+          </div>
+
+          <div style="text-align:center;color:var(--accent);font-size:1.2rem">↓</div>
+
+          <div style="background:#0d0d16;border:1px solid var(--border);border-radius:8px;padding:1.25rem;text-align:center;">
+            <div style="font-size:0.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem">Output</div>
+            <div style="font-weight:700;color:var(--accent)">Best Solution Found</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- APPLICATIONS -->
+<section id="applications">
+  <div class="container">
+    <div class="reveal">
+      <p class="section-label">// Proven results</p>
+      <h2 class="section-title">Applied to<br><span>NP-Hard problems.</span></h2>
+      <p class="section-body">
+        RKO has been benchmarked on challenging NP-hard problems, producing
+        high-quality solutions across diverse combinatorial domains.
+      </p>
+    </div>
+
+    <div class="apps-grid">
+      <div class="app-card reveal">
+        <div class="app-icon">🗺️</div>
+        <div class="app-title">α-Neighborhood p-Median</div>
+        <div class="app-body">Facility location problem seeking to place p facilities minimizing customer assignment costs within neighborhood constraints.</div>
+      </div>
+      <div class="app-card reveal">
+        <div class="app-icon">🌳</div>
+        <div class="app-title">Tree of Hubs Location</div>
+        <div class="app-body">Network design problem connecting demand nodes through a backbone tree of hub facilities, balancing coverage and cost.</div>
+      </div>
+      <div class="app-card reveal">
+        <div class="app-icon">🔗</div>
+        <div class="app-title">Node-Capacitated Graph Partitioning</div>
+        <div class="app-body">Partition a graph into balanced components respecting node capacity constraints while minimizing inter-partition edge costs.</div>
+      </div>
+      <div class="app-card reveal">
+        <div class="app-icon">🚚</div>
+        <div class="app-title">Middle-Mile Logistics (Amazon)</div>
+        <div class="app-body">Real-world application at Amazon: maximizing next-day delivery coverage using RKO with custom local search, achieving +50 bps over baseline.</div>
+      </div>
+      <div class="app-card reveal">
+        <div class="app-icon">🤖</div>
+        <div class="app-title">Robot Trajectory Planning</div>
+        <div class="app-body">Nature-inspired and hybrid quantum approaches for optimizing robot motion trajectories, reducing planning time and energy consumption.</div>
+      </div>
+      <div class="app-card reveal">
+        <div class="app-icon">📐</div>
+        <div class="app-title">Traveling Salesman Problem</div>
+        <div class="app-body">The classic TSP is included as a reference implementation in the GitHub repositories, making it easy to get started and understand the framework.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- AUTHORS & PAPER -->
+<section id="paper">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start;" class="reveal">
+      <div>
+        <p class="section-label">// Research team</p>
+        <h2 class="section-title" style="font-size:2rem">Authors</h2>
+        <div class="authors-grid">
+          <div class="author-pill"><div class="author-avatar">AC</div> Antonio A. Chaves</div>
+          <div class="author-pill"><div class="author-avatar">MR</div> Mauricio G.C. Resende</div>
+          <div class="author-pill"><div class="author-avatar">MS</div> Martin J.A. Schuetz</div>
+          <div class="author-pill"><div class="author-avatar">JB</div> J. Kyle Brubaker</div>
+          <div class="author-pill"><div class="author-avatar">HK</div> Helmut G. Katzgraber</div>
+          <div class="author-pill"><div class="author-avatar">EA</div> Edilson F. de Arruda</div>
+          <div class="author-pill"><div class="author-avatar">RS</div> Ricardo M.A. Silva</div>
+        </div>
+      </div>
+
+      <div>
+        <p class="section-label">// Publication</p>
+        <h2 class="section-title" style="font-size:2rem">Cite this work</h2>
+        <div class="citation-box">
+          <strong>Chaves, A.A., Resende, M.G.C., Schuetz, M.J.A.,<br>
+          Brubaker, J.K., Katzgraber, H.G., Arruda, E.F., Silva, R.M.A.</strong><br><br>
+          A Random-Key Optimizer for Combinatorial Optimization.<br>
+          <em style="color:var(--accent2)">Journal of Heuristics</em>, 31, 32 (2025).<br><br>
+          DOI: <a href="https://doi.org/10.48550/arXiv.2411.04293" target="_blank" style="color:var(--accent);text-decoration:none">10.48550/arXiv.2411.04293</a>
+        </div>
+        <a href="https://doi.org/10.48550/arXiv.2411.04293" target="_blank" class="btn-secondary" style="margin-top:1.5rem;display:inline-flex">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 0 1-1h6"/><polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          arXiv Preprint
+        </a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">RKO//</div>
+  <p class="footer-text">Random-Key Optimizer · Open Source · Journal of Heuristics 2025</p>
+  <div class="footer-links">
+    <a href="https://github.com/RKO-solver" target="_blank">GitHub Organization</a>
+    <a href="https://github.com/RKO-solver/RKO_Cpp_v2.0" target="_blank">C++ v2.0</a>
+    <a href="https://github.com/RKO-solver/RKO_Python" target="_blank">Python</a>
+    <a href="https://github.com/RKO-solver/RKO_Go" target="_blank">Go</a>
+    <a href="https://doi.org/10.48550/arXiv.2411.04293" target="_blank">Paper (arXiv)</a>
+    <a href="https://doi.org/10.1007/s10732-025-09568-z" target="_blank">Paper (Springer)</a>
+  </div>
+  <p class="footer-copy">© 2025 RKO Authors · CC BY 4.0</p>
+</footer>
+
+<script>
+  // Intersection Observer for scroll reveals
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => {
+          entry.target.classList.add('visible');
+        }, (entry.target.dataset.delay || 0));
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  reveals.forEach((el, i) => {
+    el.dataset.delay = (i % 4) * 80;
+    observer.observe(el);
+  });
+
+  // Stagger child reveals
+  document.querySelectorAll('.steps, .mh-grid, .repos-grid, .apps-grid').forEach(parent => {
+    parent.querySelectorAll('.step, .mh-card, .repo-card, .app-card').forEach((child, i) => {
+      child.style.transitionDelay = `${i * 60}ms`;
+    });
+  });
+</script>
+
+</body>
+</html>
