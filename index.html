@@ -988,8 +988,7 @@
             <span class="cm">// into a feasible solution<br></span>
             <span class="kw">double</span> <span class="fn">decoder</span>(
               <span class="kw">TSol</span> &amp;rk,
-              <span class="kw">TProblemData</span> &amp;data
-            ) {
+              <span class="kw">TProblemData</span> &amp;data ) <br>{
               <span class="cm"><br>// Sort indices by random-key values</span>
               <span class="kw"><br>vector</span>&lt;<span class="kw">int</span>&gt; perm = sortByKey(rk);
             
@@ -997,7 +996,7 @@
               <span class="kw"><br>double</span> cost = evaluate(perm, data);
             
               <span class="kw"><br>return</span> cost;
-            }
+            <br>}
           </div>
         </div>
 
@@ -1012,13 +1011,13 @@
           <div class="code-body">
             <span class="cm"># Clone the repository</span>
             <br>git clone https://github.com/<span class="fn">RKO-solver</span>/RKO_Cpp_v2.0
-            <br>
+            <br><br>
             <span class="cm"># Compile</span>
             <br>make
+            <br><br>
+            <span class="cm"># Run (instance, time in seconds)</span>
             <br>
-            <span class="cm"># Run (instance, time)</span>
-            <br>
-            ./runTest instances/<span class="str">name.txt</span> <span class="num">10</span> 
+            ./runRKO instances/<span class="str">name.txt</span> <span class="num">10</span> 
           </div>
         </div>
       </div>
