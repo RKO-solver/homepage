@@ -985,18 +985,18 @@
           </div>
           <div class="code-body">
             <span class="cm">// Decode a random-key vector<br></span>
-            <span class="cm">// into a feasible solution</span>
+            <span class="cm">// into a feasible solution<br></span>
             <span class="kw">double</span> <span class="fn">decoder</span>(
               <span class="kw">TSol</span> &amp;rk,
               <span class="kw">TProblemData</span> &amp;data
             ) {
-              <span class="cm">// Sort indices by random-key values</span>
-              <span class="kw">vector</span>&lt;<span class="kw">int</span>&gt; perm = sortByKey(rk);
+              <span class="cm"><br>// Sort indices by random-key values</span>
+              <span class="kw"><br>vector</span>&lt;<span class="kw">int</span>&gt; perm = sortByKey(rk);
             
-              <span class="cm">// Build solution from permutation</span>
-              <span class="kw">double</span> cost = evaluate(perm, data);
+              <span class="cm"><br>// Build solution from permutation</span>
+              <span class="kw"><br>double</span> cost = evaluate(perm, data);
             
-              <span class="kw">return</span> cost;
+              <span class="kw"><br>return</span> cost;
             }
           </div>
         </div>
@@ -1010,14 +1010,15 @@
             <span class="code-filename">Terminal</span>
           </div>
           <div class="code-body">
-<span class="cm"># Clone the repository</span>
-git clone https://github.com/<span class="fn">RKO-solver</span>/RKO_Cpp_v2.0
-
-<span class="cm"># Compile</span>
-make
-
-<span class="cm"># Run (instance, time)</span>
-./runTest instances/<span class="str">name.txt</span> <span class="num">10</span> 
+            <span class="cm"># Clone the repository</span>
+            <br>git clone https://github.com/<span class="fn">RKO-solver</span>/RKO_Cpp_v2.0
+            <br>
+            <span class="cm"># Compile</span>
+            <br>make
+            <br>
+            <span class="cm"># Run (instance, time)</span>
+            <br>
+            ./runTest instances/<span class="str">name.txt</span> <span class="num">10</span> 
           </div>
         </div>
       </div>
