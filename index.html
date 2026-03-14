@@ -984,16 +984,15 @@
             <span class="code-filename">Problem.h</span>
           </div>
           <div class="code-body">
-            <span class="cm">// Decode a random-key vector<br></span>
-            <span class="cm">// into a feasible solution<br></span>
+            <span class="cm">// Decode a random-key vector</span>
+            <span class="cm"> into a feasible solution<br></span>
             <span class="kw">double</span> <span class="fn">decoder</span>(
               <span class="kw">TSol</span> &amp;rk,
               <span class="kw">TProblemData</span> &amp;data ) <br>{
-              <span class="cm"><br>// Sort indices by random-key values</span>
-              <span class="kw"><br>vector</span>&lt;<span class="kw">int</span>&gt; perm = sortByKey(rk);
-            
-              <span class="cm"><br>// Build solution from permutation</span>
-              <span class="kw"><br>double</span> cost = evaluate(perm, data);
+              <span class="cm"><br>// Decoder implemented to a specific problem</span>            
+              <span class="kw"><br>Solution</span> sol ...
+              <span class="cm"><br><br>// Evaluate the problem solution</span>
+              <span class="kw"><br>double</span> cost = evaluate(sol, data);
             
               <span class="kw"><br>return</span> cost;
             <br>}
